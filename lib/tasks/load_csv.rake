@@ -1,9 +1,10 @@
+#encoding=utf-8
 require 'csv'
 desc "Load CSV"
 
 task :load_csv => :environment do
   CSV.foreach("./public/taxon.csv", :quote_char => ",") do |taxon|
-    if taxon[1] == 'nil'
+    if taxon[1] == 'NIL'
       taxonomy = Spree::Taxonomy.create!(
         name: taxon[0]
       )
