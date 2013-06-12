@@ -3,26 +3,20 @@ require 'csv'
 desc "Load CSV"
 
 task :load_csv => :environment do
-  CSV.foreach("./public/taxon.csv", :quote_char => ",") do |taxon|
-    if taxon[1] == 'NIL'
-      taxonomy = Spree::Taxonomy.create!(
-        name: taxon[0]
-      )
-    else
-      subcategory_into_subcategory = Spree::Taxon.find_by_name(taxon[1])
-
-      if subcategory_into_subcategory
-        if taxon[1] == subcategory_into_subcategory.name
-          Spree::Taxon.create!(
-            name: taxon[0],
-            parent_id: subcategory_into_subcategory.id,
-            taxonomy_id: subcategory_into_subcategory.taxonomy.id)
-        end
-      end
+  categories = Hash.new
+  CSV.foreach("./csv/Categorias.csv", :quote_char => '"', :col_sep => ";") do |taxon|
+    category = Spree::Taxonomy.create!(name: taxon[1]) unless taxon[1] =='DESCRIPCION'
+    if category
+      categories[taxon[0]] = category.taxons.find_by_name(category.name).id
     end
   end
 
-  CSV.foreach("./public/file.csv", :quote_char => ",") do |row|
+  sub_categories1 = Subcategory.load("./csv/Subcategorias_1.csv", categories)
+  sub_categories2 = Subcategory.load("./csv/Subcategorias_2.csv", sub_categories1)
+  sub_categories3 = Subcategory.load("./csv/Subcategorias_3.csv", sub_categories2)
+  Subcategory.load("./csv/Subcategorias_4.csv", sub_categories3)
+
+  CSV.foreach("./csv/file.csv", :quote_char => ",") do |row|
     product = Spree::Product.create!(
       sku:            row[0],
       name:           row[1],
