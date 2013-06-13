@@ -1,11 +1,17 @@
 #encoding:utf-8
 class Subcategory
-  def self.load(file, categories)
+  def self.load(url, categories)
+    url["ftp://torcaweb"] = "ftp://"+ENV["USER_FTP"]+":"+ENV["PASSWORD_FTP"]
+
+    open("./tmp/sub_categories.csv", 'wb') do |file|
+      file << open(url).read
+    end
+
     require 'csv'
 
     sub_categories_1 = Hash.new
 
-    CSV.foreach(file, {:quote_char =>'"', :col_sep =>";"}) do |sub_category_1|
+    CSV.foreach("./tmp/sub_categories.csv", {:quote_char =>'"', :col_sep =>";"}) do |sub_category_1|
       if sub_category_1[1] != 'DESCRIPCION'
         parent = Spree::Taxon.find(categories[sub_category_1[2]])
 

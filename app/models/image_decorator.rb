@@ -1,3 +1,4 @@
+#encoding:utf-8
 require "open-uri"
 Spree::Image.class_eval do
   has_attached_file :attachment,
