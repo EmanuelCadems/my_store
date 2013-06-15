@@ -30,51 +30,27 @@ task :load_csv => :environment do
     product = Spree::Product.create!(
       sku:            row[0],
       name:           row[1],
-      available_on:   row[2],
-      price:          row[3],
-      on_hand:        row[4],
-      cost_price:     row[5],
-      cost_currency:  row[6])
+      available_on:   row[2].to_datetime,
+      price:          row[3].to_d,
+      on_hand:        row[4].to_i)
 
-    index = 12
+    taxon = nil
 
-    while row[index].nil? || index == 6 do
-      index -= 1
-    end
-
-    taxon = Spree::Taxon.find_by_name(row[index])
-    candidate_taxon = taxon
-
-    if taxon
-      ok = true
-
-      while taxon.parent != nil and taxon.name == row[index] do
-        if taxon.name != row[index]
-          ok = false
-        end
-
-        taxon = taxon.parent
-        index -=1
-      end
-
-      if ok
-        product.taxons << candidate_taxon
+    row[6,6].select{|x| x}.each_with_index do |sub_category, index|
+      if index == 0
+        taxon = Spree::Taxonomy.find_by_name(sub_category).taxons.find_by_name(sub_category)
+      else
+        taxon = taxon.children.find_by_name(sub_category)
       end
     end
 
-    index = 15
+    product.taxons << taxon
 
-    while row[index].nil? || index == 12 do
-      index -= 1
-    end
-
-    while index > 12 do
+    row[12,3].select{|x| x}.each do |ftp|
+      ftp["ftp://torcaweb"] = "ftp://"+ENV["USER_FTP"]+":"+ENV["PASSWORD_FTP"]
       image = Spree::Image.new
-      image.attachment_from_url(row[index])
-      image.save
-
+      image.attachment = open(ftp)
       product.images << image
-      index -= 1
     end
   end
 
