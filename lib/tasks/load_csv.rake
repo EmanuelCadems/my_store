@@ -26,7 +26,7 @@ task :load_csv => :environment do
   sub_categories3 = Subcategory.load("ftp://torcaweb@torcasistemas.no-ip.org/exportaciones/finales/Subcategorias_3.csv", sub_categories2)
   Subcategory.load("ftp://torcaweb@torcasistemas.no-ip.org/exportaciones/finales/Subcategorias_4.csv", sub_categories3)
 
-  CSV.foreach("./csv/papa.csv", :quote_char => '"',:col_sep => ";") do |row|
+  CSV.foreach("./csv/product.csv", :quote_char => '"',:col_sep => ";") do |row|
     product = Spree::Product.create!(
       sku:            row[0],
       name:           row[1],
