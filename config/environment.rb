@@ -1,6 +1,7 @@
 # Load the rails application
 require File.expand_path('../application', __FILE__)
 require "#{Rails.root}/lib/load_sub_category.rb"
+require "#{Rails.root}/lib/ftp.rb"
 # Initialize the rails application
 MyStore::Application.initialize!
 
